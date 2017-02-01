@@ -6,6 +6,8 @@ using UnityStandardAssets.CrossPlatformInput;
 
 
 public class GUIScript : MonoBehaviour {
+	[SerializeField]
+	private DummyVirtualAxis axis;
 
 	private bool isLON;
 	private bool isRON;
@@ -18,6 +20,13 @@ public class GUIScript : MonoBehaviour {
 	private object guard = new object();
 
 	void OnGUI() {
+		var carObj = GameObject.FindGameObjectWithTag ("Player");
+		if (carObj) {
+			var carScriptObj = carObj.GetComponent<CarScript>();
+			speed = carScriptObj.getSpeed ();
+			distance = carScriptObj.getDistance ();
+		}
+
 		GUI.Label (new Rect (10, 10, 500, 100), 
 			string.Format("Speed: {0}", speed.ToString()));
 
@@ -32,10 +41,10 @@ public class GUIScript : MonoBehaviour {
 
 		GUI.Label (new Rect (10, 90, 500, 100),
 			string.Format ("UP:{0}, DOWN:{1}, LEFT:{2}, RIGHT:{3}",
-				isUON ? "@" : "_", 
-				isDON ? "@" : "_",
-				isLON ? "@" : "_",
-				isRON ? "@" : "_"));
+				axis.isUpBtnON ? "@" : "_", 
+				axis.isDownBtnON ? "@" : "_",
+				axis.isLeftBtnON ? "@" : "_",
+				axis.isRightBtnON ? "@" : "_"));
 
 		string str = "";
 		lock (guard) {
@@ -44,21 +53,6 @@ public class GUIScript : MonoBehaviour {
 			}
 		}
 		GUI.Label (new Rect(10, 110, 500, 500), str);
-	}
-
-	public void setSpeed(float speed) {
-		this.speed = speed;
-	}
-
-	public void setDistance(float distance) {
-		this.distance = distance;
-	}
-
-	public void setButtonsON(bool isUpON, bool isDownON, bool isLeftON, bool isRightON) {
-		isLON = isLeftON;
-		isRON = isRightON;
-		isUON = isUpON;
-		isDON = isDownON;
 	}
 
 	public void setResult(string str) {

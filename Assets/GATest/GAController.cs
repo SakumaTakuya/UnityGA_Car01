@@ -20,7 +20,6 @@ public class GAController : MonoBehaviour {
 	int keepNum = 5;
 	float mutateRate = 0.01f;
 
-	public event Action<int, List<Gene>> onResultEvent = delegate {};
 
 	// Use this for initialization
 	void Start () {
@@ -74,7 +73,7 @@ public class GAController : MonoBehaviour {
 				Debug.Log (string.Format ("{0}/{1}", gene.point, gene.rate));
 			}
 			Debug.Log (string.Format ("=== Gen {0} : Top {1} m ===", generation, geneList [0].point));
-			onResultEvent (generation, geneList);
+			controller.setResult (generation, geneList);
 			writeLog (logDirPath, generation, geneList);
 
 			generation++;

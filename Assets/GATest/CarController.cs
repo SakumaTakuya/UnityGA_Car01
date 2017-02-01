@@ -2,18 +2,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using UnityStandardAssets.CrossPlatformInput;
+
+
 public class CarController : MonoBehaviour {
 	[SerializeField]
 	private DummyVirtualAxis axis;
 
+	[SerializeField]
+	private GameObject carTemplate;
+	private CarScript car;
+
+	[SerializeField]
+	private GUIScript gui;
+
 	bool isPlay = false;
 	bool isFinish = false;
-	float speed = 0.0f;
-	float distance = 0.0f;
 	float resultDistance = 0.0f;
 	float underLimitSpeed = 5.0f;
 	float lowSpeedLimitTime = 5.0f;
 	IEnumerator<bool> player;
+	string result;
+
 
 	public bool IsFinished {
 		get { return !isPlay && isFinish; }
@@ -21,7 +31,8 @@ public class CarController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		
+		Debug.Log ("Start The World");
+		Time.timeScale = 5.0f;
 	}
 
 	public void Play(List<Param> paramList) {
@@ -33,6 +44,10 @@ public class CarController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		if (CrossPlatformInputManager.GetButtonDown("Cancel")) {
+			resetGame ();
+		}
+
 		if (!isPlay)
 			return;
 
@@ -45,16 +60,13 @@ public class CarController : MonoBehaviour {
 		isFinish = true;
 	}
 
-	public void SetSpeed(float speed) {
-		this.speed = speed;
-	}
-
-	public void SetDistance(float distance) {
-		this.distance = distance;
-	}
-
 	public float getPoint() {
 		return resultDistance;
+	}
+
+	public void setResult(int generation, List<GAController.Gene> geneList) {
+		result = string.Format("Gen:{0} Top:{1}", generation, geneList[0].point);
+		gui.setResult (result);
 	}
 
 	private IEnumerator<bool> GetPlayer(List<Param> paramList) {
@@ -76,7 +88,7 @@ public class CarController : MonoBehaviour {
 
 				foreach (var time in yieldTimer(0.5f)) yield return false;
 
-				if (speed <= underLimitSpeed) {
+				if (car.getSpeed() <= underLimitSpeed) {
 					lowSpeedTime += 0.5f;
 					if (lowSpeedTime >= lowSpeedLimitTime) {
 						isFinish = true;
@@ -88,7 +100,7 @@ public class CarController : MonoBehaviour {
 			}
 		}
 
-		resultDistance = distance;
+		resultDistance = car.getDistance();
 
 		axis.TriggerGo (false);
 		axis.TriggerBack (false);
@@ -105,6 +117,20 @@ public class CarController : MonoBehaviour {
 			yield return time;
 			time += Time.deltaTime;
 		}
+	}
+
+	private void resetGame() {
+		GameObject[] cars = GameObject.FindGameObjectsWithTag ("Player");
+		foreach (var car in cars) {
+			Destroy (car);
+		}
+
+		var obj = Instantiate (carTemplate);
+		car = obj.GetComponent<CarScript> ();
+		car.transform.position = GameObject.FindGameObjectWithTag ("Respawn").transform.position;
+		car.CollidedWithWall += () => {
+			SetCrash();
+		};
 	}
 			
 	public class Param {
