@@ -11,16 +11,14 @@ public class WorldScript : MonoBehaviour {
 	private GameObject car;
 
 	[SerializeField]
-	private GAController ga;
-
-	[SerializeField]
 	private CarController controller;
 
 	[SerializeField]
-	private DummyVirtualAxis axis;
+	private GAController ga;
 
 	[SerializeField]
 	private GUIScript gui;
+
 
 	private float timeScale = 5.0f;
 
@@ -41,8 +39,6 @@ public class WorldScript : MonoBehaviour {
 		if (CrossPlatformInputManager.GetButtonDown("Cancel")) {
 			resetGame ();
 		}
-
-		gui.setButtonsON (axis.isUpBtnON, axis.isDownBtnON, axis.isLeftBtnON, axis.isRightBtnON);
 	}
 
 	private void resetGame() {
@@ -70,7 +66,6 @@ public class WorldScript : MonoBehaviour {
 		if (carobj == null) return;
 
 		float speed = carobj.GetComponent<CarScript> ().getSpeed ();
-		gui.setSpeed (speed);
 		controller.SetSpeed (speed);
 	}
 
@@ -79,7 +74,6 @@ public class WorldScript : MonoBehaviour {
 		if (carobj == null) return;
 
 		float distance = carobj.GetComponent<CarScript> ().getDistance ();
-		gui.setDistance (distance);
 		controller.SetDistance (distance);
 	}
 }
