@@ -18,6 +18,7 @@ public class GAController : MonoBehaviour {
 
 	int childNum = 20;
 	int keepNum = 5;
+	int extinctionNum = 5;
 	float mutateRate = 0.01f;
 
 
@@ -48,7 +49,6 @@ public class GAController : MonoBehaviour {
 		string logDirPath = string.Format ("Log/{0}", DateTime.Now.ToString ("yyyyMMdd_hhmmss"));
 
 		while (true) {
-			float totalPoint = 0.0f;
 			foreach (var gene in geneList) {
 				controller.Play (gene.paramList);
 				while (!controller.IsFinished) {
@@ -56,11 +56,6 @@ public class GAController : MonoBehaviour {
 				}
 
 				gene.point = Mathf.Max(controller.getPoint (), 0.0f);
-				totalPoint += gene.point;
-			}
-
-			foreach (var gene in geneList) {
-				gene.rate = gene.point / totalPoint;
 			}
 
 			geneList.Sort ((a, b) => {
@@ -68,6 +63,19 @@ public class GAController : MonoBehaviour {
 				else if (a.point < b.point) return 1;
 				else return 0;
 			});
+
+			float totalPoint = 0.0f;
+			float minPoint = geneList[geneList.Count - extinctionNum - 1].point;
+			foreach (var i in Enumerable.Range(0, geneList.Count -extinctionNum)) {
+				totalPoint += (geneList [i].point - minPoint);
+				if (minPoint > geneList [i].point) {
+					minPoint = geneList [i].point;
+				}
+			}
+
+			foreach (var gene in geneList) {
+				gene.rate = Mathf.Max((gene.point - minPoint) / totalPoint, 0);
+			}
 
 			foreach (var gene in geneList) {
 				Debug.Log (string.Format ("{0}/{1}", gene.point, gene.rate));
