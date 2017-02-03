@@ -47,7 +47,9 @@ public class CarController : MonoBehaviour {
 		if (CrossPlatformInputManager.GetButtonDown("Cancel")) {
 			resetGame ();
 		}
+	}
 
+	void FixedUpdate () {
 		if (!isPlay)
 			return;
 
